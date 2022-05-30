@@ -12,9 +12,12 @@ from splane import analyze_sys, pretty_print_bicuad_omegayq
 
 w0 = 1
 w1 = -1
+e = 0.508
 
-num = np.array([-100, 0])
-den = np.array([1, 1, 1])
+
+num = np.array([1/e])
+den = np.array([1, 1.984, 1/e])
+
 
 pretty_print_bicuad_omegayq(num,den)
 
