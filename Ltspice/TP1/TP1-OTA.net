@@ -1,0 +1,8 @@
+* C:\Users\perei\Documents\Teoria de Circuitos 2\Ltspice\TP1-OTA.asc
+A2 N001 0 0 0 0 0 in 0 OTA G=10m Vlow=-1
+C1 N001 0 1µ
+V1 in 0 AC 1
+A1 0 in 0 0 0 0 N001 0 OTA G=10m Vlow=-1
+.ac dec 100 1 100k
+.backanno
+.end

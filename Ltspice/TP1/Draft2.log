@@ -1,0 +1,20 @@
+Circuit: * C:\Users\perei\Documents\Teoria de Circuitos 2\Ltspice\Draft2.asc
+
+Direct Newton iteration for .op point succeeded.
+
+Date: Mon May 02 19:30:58 2022
+Total elapsed time: 0.075 seconds.
+
+tnom = 27
+temp = 27
+method = trap
+totiter = 3
+traniter = 0
+tranpoints = 0
+accept = 0
+rejected = 0
+matrix size = 3
+fillins = 0
+solver = Normal
+Matrix Compiler1:       4 opcodes
+Matrix Compiler2: 149 bytes object code size
