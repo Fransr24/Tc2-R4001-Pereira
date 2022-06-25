@@ -15,8 +15,8 @@ w1 = -1
 e = 0.508
 
 
-num = np.array([1/e])
-den = np.array([1, 1.984, 1/e])
+num = np.array([1, 0])
+den = np.array([1, 6, 4])
 
 
 pretty_print_bicuad_omegayq(num,den)
@@ -25,6 +25,7 @@ mi_sos = sig.TransferFunction(num,den)
 
 print (mi_sos)
 plt.close('all')
+%matplotlib qt5
 analyze_sys(mi_sos, 'mi SOS')
 
 

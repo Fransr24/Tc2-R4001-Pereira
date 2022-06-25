@@ -35,9 +35,216 @@ from collections import defaultdict
 from scipy.signal import tf2zpk, TransferFunction, zpk2tf
 from IPython.display import display, Math, Markdown
 import sympy as sp
+from sympy.abc import s
 from schemdraw import Drawing
 from schemdraw.elements import  Resistor, ResistorIEC, Capacitor, Inductor, Line, Dot, Gap, Arrow, CurrentLabelInline
 
+from fractions import Fraction
+
+
+def parametrize_sos(num, den):
+    
+    '''
+    Parameters
+    ----------
+    num : TYPE
+        DESCRIPTION.
+    den : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    Example
+    -------
+
+    num = sp.Poly((a*s + b),s)
+    den = sp.Poly((c*s + d),s)
+    sos_bili, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    num = sp.Poly((a*s),s)
+    sos_bili1, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    num = sp.Poly((a),s)
+    sos_bili2, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    num = sp.Poly((a*s**2 + b*s + c),s)
+    den = sp.Poly((d*s**2 + e*s + f),s)
+    sos_1, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    num = sp.Poly((a*s**2 + c**2),s)
+    sos_2, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    num = sp.Poly((a*s**2 + s*b),s)
+    sos_3, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    num = sp.Poly(a,s)
+    sos_4, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    num = sp.Poly(a*s**2 ,s)
+    sos_5, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    num = sp.Poly((b*s),s)
+    sos_6, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
+    '''    
+    
+    w_od = sp.Rational('0')
+    Q_d = sp.Rational('0')
+    w_on = sp.Rational('0')
+    Q_n = sp.Rational('0')
+    K = sp.Rational('0')
+    
+    den_coeffs = den.all_coeffs()
+    num_coeffs = num.all_coeffs()
+
+    if len(den_coeffs) == 3:
+    # only 2nd order denominators allowed
+        
+        w_od = sp.sqrt(den_coeffs[2]/den_coeffs[0])
+        
+        omega_Q = den_coeffs[1]/den_coeffs[0]
+        
+        Q_d = sp.simplify(sp.expand(w_od / omega_Q))
+        
+        k_d = den_coeffs[0]
+        
+        # wo-Q parametrization
+        den  = sp.poly( s**2 + s * sp.Mul(w_od, 1/Q_d, evaluate=False) + w_od**2, s)
+
+
+        if num.is_monomial:
+            
+            if num.degree() == 2:
+                #pasaaltos
+                
+                k_n = num_coeffs[0]
+                
+                num  = sp.poly( s**2, s)
+
+            elif num.degree() == 1:
+                #pasabanda
+                
+                k_n = num_coeffs[0] * Q_d / w_od
+                
+                # wo-Q parametrization
+                num  = sp.poly( s * w_od / Q_d , s)
+
+            else:
+                #pasabajos
+                
+                k_n = num_coeffs[0] / w_od**2
+                
+                num  = sp.poly( w_od**2, s)
+
+                
+        else:
+        # no monomial
+        
+            if num.degree() == 2:
+
+                if num_coeffs[1].is_zero:
+                    
+                    # zero at w_on
+                    w_on = sp.sqrt(num_coeffs[2]/num_coeffs[0])
+
+                    k_n = num_coeffs[0]
+                
+                    num  = sp.poly( s**2 + w_on**2, s)
+
+                if num_coeffs[2].is_zero:
+                
+                    # zero at w=0 and at w_on
+                    w_on = num_coeffs[1]/num_coeffs[0]
+
+                    k_n = num_coeffs[0]
+
+                    num = sp.poly( s*( s + w_on), s)
+                
+                else: 
+                    # complete poly -> full bicuad
+                
+                    w_on = sp.sqrt(num_coeffs[2]/num_coeffs[0])
+                
+                    omega_Q = num_coeffs[1]/num_coeffs[0]
+                    
+                    Q_n = sp.simplify(sp.expand(w_on / omega_Q))
+                    
+                    k_n = num_coeffs[0]
+                    
+                    # wo-Q parametrization
+                    num  = sp.poly( s**2 + s * sp.Mul(w_on, 1/Q_n, evaluate=False) + w_on**2, s)
+
+            
+            else:
+                # only first order
+                
+                w_on = num_coeffs[1] / num_coeffs[0]
+                
+                k_n = num_coeffs[0]
+                
+                num  = sp.poly( s * w_on, s)
+
+        
+        K = sp.simplify(sp.expand(k_n / k_d))
+
+    elif len(den_coeffs) == 2:
+        # bilineal
+        w_od = den_coeffs[1]/den_coeffs[0]
+        
+        k_d = den_coeffs[0]
+        
+        # wo-Q parametrization
+        den  = sp.poly( s + w_od, s)        
+    
+        if num.is_monomial:
+            
+            if num.degree() == 1:
+                
+                k_n = num_coeffs[0]
+                
+                # wo-Q parametrization
+                num = sp.poly( s, s)        
+
+            else:
+                                
+                k_n = num_coeffs[0] / w_od
+                
+                num  = sp.poly( w_od, s)
+
+                
+        else:
+        # no monomial
+        
+            w_on = num_coeffs[1]/num_coeffs[0]
+            
+            k_n = num_coeffs[0]
+            
+            # wo-Q parametrization
+            num = sp.poly( s + w_on, s)        
+    
+        K = sp.simplify(sp.expand(k_n / k_d))
+
+    return( num, den, w_on, Q_n, w_od, Q_d, K )
+
+
+def simplify_n_monic(tt):
+    
+    num, den = sp.fraction(tt)
+    
+    num = sp.poly(num,s)
+    den = sp.poly(den,s)
+    
+    lcnum = sp.LC(num)
+    lcden = sp.LC(den)
+    
+    k = num.LC() / den.LC()
+    
+    num = num.monic()
+    den = den.monic()
+
+    return( sp.Mul(k,num/den, evaluate=False) )
 
 def pp(z1, z2):
     '''
@@ -1237,7 +1444,12 @@ def print_latex(strAux):
     display(Math(strAux))
 
 
-def pretty_print_lti(this_lti, displaystr = True):
+def pretty_print_lti(num, den = None, displaystr = True):
+    
+    if den is None:
+        this_lti = num
+    else:
+        this_lti = TransferFunction(num, den)
     
     num_str_aux = build_poly_str(this_lti.num)
     den_str_aux = build_poly_str(this_lti.den)
@@ -1364,7 +1576,7 @@ def pretty_print_SOS(mySOS, mode = 'default', displaystr = True):
 
 
 
-def analyze_sys( all_sys, sys_name = None, img_ext = 'none', same_figs=True ):
+def analyze_sys( all_sys, sys_name = None, img_ext = 'none', same_figs=True, annotations = True ):
     
     
     
@@ -1428,14 +1640,14 @@ def analyze_sys( all_sys, sys_name = None, img_ext = 'none', same_figs=True ):
             
             thisFilter = sos2tf_analog(all_sys[ii])
 
-            analog_fig_id, analog_axes_hdl = pzmap(thisFilter, filter_description=sys_name[ii], fig_id = analog_fig_id, axes_hdl=analog_axes_hdl, annotations = True)
+            analog_fig_id, analog_axes_hdl = pzmap(thisFilter, filter_description=sys_name[ii], fig_id = analog_fig_id, axes_hdl=analog_axes_hdl, annotations = annotations)
             
         else:
                 
             if all_sys[ii].dt is None:
-                analog_fig_id, analog_axes_hdl = pzmap(all_sys[ii], filter_description=sys_name[ii], fig_id = analog_fig_id, axes_hdl=analog_axes_hdl)
+                analog_fig_id, analog_axes_hdl = pzmap(all_sys[ii], filter_description=sys_name[ii], fig_id = analog_fig_id, axes_hdl=analog_axes_hdl, annotations = annotations)
             else:
-                digital_fig_id, digital_axes_hdl = pzmap(all_sys[ii], filter_description=sys_name[ii], fig_id = digital_fig_id, axes_hdl=digital_axes_hdl)
+                digital_fig_id, digital_axes_hdl = pzmap(all_sys[ii], filter_description=sys_name[ii], fig_id = digital_fig_id, axes_hdl=digital_axes_hdl, annotations = annotations)
             
 
     if isinstance(all_sys[ii], np.ndarray) or ( isinstance(all_sys[ii], TransferFunction) and all_sys[ii].dt is None) :
@@ -1786,7 +1998,41 @@ def bodePlot(myFilter, fig_id='none', axes_hdl='none', label = '', npoints = 100
 
         
     plt.sca(phase_ax_hdl)
-    aux_hdl = plt.semilogx(w, phase, label=label)    # Bode phase plot
+    aux_hdl = plt.semilogx(w, np.pi/180*phase, label=label)    # Bode phase plot
+    
+    # Scale axes to fit
+    ylim = plt.gca().get_ylim()
+
+    ticks = np.linspace(start=np.round(ylim[0]/np.pi)*np.pi, stop=np.round(ylim[1]/np.pi)*np.pi, num = 5, endpoint=True)
+
+    ylabs = []
+    for aa in ticks:
+        
+        if aa == 0:
+            ylabs += ['0'] 
+        else:
+            bb = Fraction(aa/np.pi).limit_denominator(1000000)
+            if np.abs(bb.numerator) != 1:
+                if np.abs(bb.denominator) != 1:
+                    str_aux = r'$\frac{{{:d}}}{{{:d}}} \pi$'.format(bb.numerator, bb.denominator)
+                else:
+                    str_aux = r'${:d}\pi$'.format(bb.numerator)
+                    
+            else:
+                if np.abs(bb.denominator) == 1:
+                    if np.sign(bb.numerator) == -1:
+                        str_aux = r'$-\pi$'
+                    else:
+                        str_aux = r'$\pi$'
+                else:
+                    if np.sign(bb.numerator) == -1:
+                        str_aux = r'$-\frac{{\pi}}{{{:d}}}$'.format(bb.denominator)
+                    else:
+                        str_aux = r'$\frac{{\pi}}{{{:d}}}$'.format(bb.denominator)
+                    
+            ylabs += [ str_aux ]
+            
+    plt.yticks(ticks, labels = ylabs )
     
     if cant_sos > 0:
         # distinguish SOS from total response
@@ -1795,7 +2041,7 @@ def bodePlot(myFilter, fig_id='none', axes_hdl='none', label = '', npoints = 100
     
     plt.grid(True)
     plt.xlabel('Angular frequency [rad/sec]')
-    plt.ylabel('Phase [deg]')
+    plt.ylabel('Phase [rad]')
     plt.title('Phase response')
     
     if label != '' :
@@ -2018,7 +2264,8 @@ def zpk2sos_analog(z, p, k, pairing='nearest'):
         
         _, mag, _ = thisFilter.bode(np.logspace(-2,2,100))
         
-        maxima_tf[si] = np.max(mag)
+        # bode in dB
+        maxima_tf[si] = 10**(np.max(mag)/20)
     
     mmi = np.cumprod(maxima_tf) # M_i according to Schaumann eq 5.76
 
