@@ -1,0 +1,27 @@
+Questionable use of curly braces in "r1 n001 n010 {r11}"
+    Error: undefined symbol in: "[r11]"
+Questionable use of curly braces in "r2 n002 n004 {r12/a2}"
+    Error: undefined symbol in: "[r12]/a2"
+Questionable use of curly braces in "r5 0 n002 {r12/(a-a2)}"
+    Error: undefined symbol in: "[r12]/(a-a2)"
+Questionable use of curly braces in "r3 n003 n005 {r13/a3}"
+    Error: undefined symbol in: "[r13]/a3"
+Questionable use of curly braces in "r4 0 n003 {r13/(a-a3)}"
+    Error: undefined symbol in: "[r13]/(a-a3)"
+Circuit: * C:\Users\perei\Documents\GitHub\Tc2-R4001-Pereira\Ltspice\Ts4\Activo.asc
+
+Error on line 3 : r1 n001 n010 (r11)
+	 Unable to find definition of model "r11"
+Error on line 20 : r2 n002 n004 (r12/a2)
+	 Unable to find definition of model "r12/a2"
+Error on line 21 : r5 0 n002 (r12/(a-a2))
+	 Unable to find definition of model "r12/"
+	
+	*  Unknown parameter "a-a2"
+Error on line 30 : r3 n003 n005 (r13/a3)
+	 Unable to find definition of model "r13/a3"
+Error on line 31 : r4 0 n003 (r13/(a-a3))
+	 Unable to find definition of model "r13/"
+	
+	*  Unknown parameter "a-a3"
+Fatal Error: Missing resistance value for "R4"
