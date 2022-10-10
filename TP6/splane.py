@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+
 Originally based on the work of Combination of 
 2011 Christopher Felton
 Further modifications were added for didactic purposes
@@ -50,6 +51,7 @@ def dibujar_cauer_RC_RL(ki = None, y_exc = None, z_exc = None):
     Description
     -----------
     Draws a parallel non-disipative admitance following Foster synthesis method.
+
         YorZ = ki / s +  1 / ( ki_i / s + koo_i * s ) 
     
     Parameters
@@ -62,12 +64,14 @@ def dibujar_cauer_RC_RL(ki = None, y_exc = None, z_exc = None):
          each i-th finite pole or s**2->-(w_i**2). The first element of the pair
          is the ki_i value (capacitor), while the other is the koo_i (inductor)
          value.
+
     Returns
     -------
     The drawing object.
     
     Ejemplo
     -------
+
     # Sea la siguiente función de excitación
     Imm = (2*s**4 + 20*s**2 + 18)/(s**3 + 4*s)
     
@@ -76,6 +80,7 @@ def dibujar_cauer_RC_RL(ki = None, y_exc = None, z_exc = None):
     
     # Tratamos a nuestra función imitancia como una Z
     tc2.dibujar_foster_derivacion(ki, koo, ki, y_exc = Imm)
+
     '''    
     if y_exc is None and z_exc is None:
 
@@ -164,6 +169,7 @@ def dibujar_cauer_LC(ki = None, y_exc = None, z_exc = None):
     Description
     -----------
     Draws a parallel non-disipative admitance following Foster synthesis method.
+
         YorZ = ki / s +  1 / ( ki_i / s + koo_i * s ) 
     
     Parameters
@@ -176,12 +182,14 @@ def dibujar_cauer_LC(ki = None, y_exc = None, z_exc = None):
          each i-th finite pole or s**2->-(w_i**2). The first element of the pair
          is the ki_i value (capacitor), while the other is the koo_i (inductor)
          value.
+
     Returns
     -------
     The drawing object.
     
     Ejemplo
     -------
+
     # Sea la siguiente función de excitación
     Imm = (2*s**4 + 20*s**2 + 18)/(s**3 + 4*s)
     
@@ -190,6 +198,7 @@ def dibujar_cauer_LC(ki = None, y_exc = None, z_exc = None):
     
     # Tratamos a nuestra función imitancia como una Z
     tc2.dibujar_foster_derivacion(ki, koo, ki, y_exc = Imm)
+
     '''    
     if y_exc is None and z_exc is None:
 
@@ -282,14 +291,18 @@ def cauer_RC( imm, remover_en_inf=True ):
     Description
     -----------
     Perform continued fraction expansion over imm following Cauer 2 synthesis method.
+
         imm = k0_0 / s + 1 / ( k0_1 + 1/ (k0_2 / s  + 1/ ... )) 
+
     Parameters
     ----------
     immittance : symbolic rational function
         La inmitancia a sintetizar.
+
     Returns
     -------
     A list k0 with the i-th k0_i resulted from continued fraction expansion.
+
     Ejemplo
     -------
     
@@ -298,6 +311,7 @@ def cauer_RC( imm, remover_en_inf=True ):
     
     # Implementaremos Imm mediante Cauer 1 o remociones continuas en infinito
     imm_cauer_0, k0 = tc2.cauer_0(Imm)
+
     '''    
     
     ko = []
@@ -321,7 +335,7 @@ def cauer_RC( imm, remover_en_inf=True ):
 
     
         
-    while not(rem.is_zero):
+    while not(rem.is_zero) and not(koi.is_zero):
         
         ko += [koi]
         rem = 1/rem
@@ -344,7 +358,12 @@ def cauer_RC( imm, remover_en_inf=True ):
                 bRemoverPolo = True
 
 
-    ko += [koi]
+    if koi.is_zero:
+        # deshago para entender al resto de la misma 
+        # naturaleza que el último elemento que retiró.
+        rem = 1/rem
+    else:
+        ko += [koi]
 
     imm_as_cauer = koi
     
@@ -359,14 +378,18 @@ def cauer_LC( imm, remover_en_inf = True ):
     Description
     -----------
     Perform continued fraction expansion over imm following Cauer 1 synthesis method.
+
         imm = koo_0 * s + 1 / ( koo_1 * s + 1/ (koo_2 * s  + 1/ ... )) 
+
     Parameters
     ----------
     immittance : symbolic rational function
         La inmitancia a sintetizar.
+
     Returns
     -------
     A list koo with the i-th koo_i resulted from continued fraction expansion.
+
     Ejemplo
     -------
     
@@ -375,6 +398,7 @@ def cauer_LC( imm, remover_en_inf = True ):
     
     # Implementaremos Imm mediante Cauer 1 o remociones continuas en infinito
     imm_cauer_oo, koo = tc2.cauer_oo(Imm)
+
     '''    
         
     rem = imm
@@ -386,7 +410,7 @@ def cauer_LC( imm, remover_en_inf = True ):
         rem, koi = remover_polo_dc(rem)
         
     
-    while not(rem.is_zero):
+    while not(rem.is_zero) and not(koi.is_zero):
         
         ko += [koi]
         rem = 1/rem
@@ -396,7 +420,12 @@ def cauer_LC( imm, remover_en_inf = True ):
         else:
             rem, koi = remover_polo_dc(rem)
 
-    ko += [koi]
+    if koi.is_zero:
+        # deshago para entender al resto de la misma 
+        # naturaleza que el último elemento que retiró.
+        rem = 1/rem
+    else:
+        ko += [koi]
 
     imm_as_cauer = koi
 
@@ -413,6 +442,7 @@ def dibujar_foster_derivacion(k0 = None, koo = None, ki = None, y_exc = None):
     Description
     -----------
     Draws a parallel non-disipative admitance following Foster synthesis method.
+
         Y = k0 / s + koo * s +  1 / ( k0_i / s + koo_i * s ) 
     
     Parameters
@@ -425,12 +455,14 @@ def dibujar_foster_derivacion(k0 = None, koo = None, ki = None, y_exc = None):
          each i-th finite pole or s**2->-(w_i**2). The first element of the pair
          is the k0_i value (capacitor), while the other is the koo_i (inductor)
          value.
+
     Returns
     -------
     The drawing object.
     
     Ejemplo
     -------
+
     # Sea la siguiente función de excitación
     Imm = (2*s**4 + 20*s**2 + 18)/(s**3 + 4*s)
     
@@ -439,6 +471,7 @@ def dibujar_foster_derivacion(k0 = None, koo = None, ki = None, y_exc = None):
     
     # Tratamos a nuestra función imitancia como una Z
     tc2.dibujar_foster_derivacion(k0, koo, ki, y_exc = Imm)
+
     '''    
 
     if not(k0 is None and koo is None and ki is None):
@@ -501,6 +534,7 @@ def dibujar_foster_serie(k0 = None, koo = None, ki = None, z_exc = None):
     Description
     -----------
     Draws a series non-disipative impedance following Foster synthesis method.
+
         Z = k0 / s + koo * s +  1 / ( k0_i / s + koo_i * s ) 
     
     Parameters
@@ -513,12 +547,14 @@ def dibujar_foster_serie(k0 = None, koo = None, ki = None, z_exc = None):
          each i-th finite pole or s**2->-(w_i**2). The first element of the pair
          is the k0_i value (inductor), while the other is the koo_i (capacitor)
          value.
+
     Returns
     -------
     The drawing object.
     
     Ejemplo
     -------
+
     # Sea la siguiente función de excitación
     Imm = (2*s**4 + 20*s**2 + 18)/(s**3 + 4*s)
     
@@ -527,6 +563,7 @@ def dibujar_foster_serie(k0 = None, koo = None, ki = None, z_exc = None):
     
     # Tratamos a nuestra función imitancia como una Z
     tc2.dibujar_foster_serie(k0, koo, ki, z_exc = Imm)
+
     '''    
 
     if not(k0 is None and koo is None and ki is None):
@@ -582,15 +619,19 @@ def foster( imm ):
     ----------
     immittance : symbolic rational function
         La inmitancia a sintetizar.
+
     Returns
     -------
     Una lista imm_list con los elementos obtenidos de la siguientes expansión en 
     fracciones simples:
         
         Imm = k0 / s + koo * s +  1 / ( k0_i / s + koo_i * s ) 
+
+
     imm_list = [ k0, koo, [k00, koo0], [k01, koo1], ..., [k0N, kooN]  ]
     
     Si algún elemento no está presente, su valor será de "None".
+
     Ejemplo
     -------
     
@@ -599,6 +640,8 @@ def foster( imm ):
     
     # Implementaremos Imm mediante Foster
     k0, koo, ki = tc2.foster(Imm)
+
+
     '''    
         
     imm_foster = apart(imm)
@@ -666,31 +709,43 @@ def parametrize_sos(num, den):
         DESCRIPTION.
     den : TYPE
         DESCRIPTION.
+
     Returns
     -------
     None.
+
     Example
     -------
+
     num = sp.Poly((a*s + b),s)
     den = sp.Poly((c*s + d),s)
     sos_bili, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     num = sp.Poly((a*s),s)
     sos_bili1, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     num = sp.Poly((a),s)
     sos_bili2, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     num = sp.Poly((a*s**2 + b*s + c),s)
     den = sp.Poly((d*s**2 + e*s + f),s)
     sos_1, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     num = sp.Poly((a*s**2 + c**2),s)
     sos_2, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     num = sp.Poly((a*s**2 + s*b),s)
     sos_3, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     num = sp.Poly(a,s)
     sos_4, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     num = sp.Poly(a*s**2 ,s)
     sos_5, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     num = sp.Poly((b*s),s)
     sos_6, w_on, Q_n, w_od, Q_d, K = parametrize_sos(num, den)
+
     '''    
     
     w_od = sp.Rational('0')
@@ -852,16 +907,19 @@ def simplify_n_monic(tt):
 def pp(z1, z2):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
 
     return(z1*z2/(z1+z2))
@@ -877,16 +935,19 @@ def pp(z1, z2):
 def I2T(gamma, z01, z02 = None):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     if z02 is None:
         z02 = z01
@@ -904,16 +965,19 @@ def I2T(gamma, z01, z02 = None):
 def I2T_s(gamma, z01, z02 = None):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     if z02 is None:
         z02 = z01
@@ -1096,10 +1160,10 @@ def dibujar_elemento_serie(d, elemento, sym_label=''):
 
 def dibujar_espacio_derivacion(d):
 
-    d += Line().right().length(d.unit*.5)
+    d += Line().right().length(d.unit*.25)
     d.push()
     d += Gap().down().label( '' )
-    d += Line().left().length(d.unit*.5)
+    d += Line().left().length(d.unit*.25)
     d.pop()
 
     return(d)
@@ -1172,7 +1236,55 @@ def dibujar_tanque_RC_derivacion(d, sym_R_label='', capacitor_lbl=''):
 
     return(d)
 
-def dibujar_tanque_RL_serie(d, sym_R_label='', inductor_lbl=''):
+def dibujar_tanque_RL_serie(d, sym_R_label='', sym_ind_label=''):
+    
+    if isinstance(sym_R_label, sp.Number ):
+        sym_R_label = to_latex(sym_R_label)
+    else:
+        sym_R_label = str_to_latex(sym_R_label)
+    
+    if isinstance(sym_ind_label, sp.Number ):
+        sym_ind_label = to_latex(sym_ind_label)
+    else:
+        sym_ind_label = str_to_latex(sym_ind_label)
+    
+    d.push()
+    d += Dot()
+    d += Inductor().right().label(sym_ind_label, fontsize=16)
+    d.pop()
+    d += Line().up().length(d.unit*.5)
+    d += Resistor().right().label(sym_R_label, fontsize=16)
+    d += Line().down().length(d.unit*.5)
+    d += Dot()
+    d.push()
+    d += Gap().down().label( '' )
+    d += Line().left()
+    d.pop()
+
+    return(d)
+
+def dibujar_tanque_RL_derivacion(d, sym_R_label='', sym_ind_label=''):
+    
+    if isinstance(sym_R_label, sp.Number ):
+        sym_R_label = to_latex(sym_R_label)
+    else:
+        sym_R_label = str_to_latex(sym_R_label)
+    
+    if isinstance(sym_ind_label, sp.Number ):
+        sym_ind_label = to_latex(sym_ind_label)
+    else:
+        sym_ind_label = str_to_latex(sym_ind_label)
+    
+    d.push()
+    d += Dot()
+    d += Inductor().down().label(sym_ind_label, fontsize=16).length(d.unit*.5)
+    d += Resistor().down().label(sym_R_label, fontsize=16).length(d.unit*.5)
+    d += Dot()
+    d.pop()
+
+    return(d)
+
+def dibujar_tanque_serie(d, sym_ind_label='', sym_cap_label=''):
     
     if isinstance(sym_R_label, sp.Number ):
         sym_R_label = to_latex(sym_R_label)
@@ -1284,16 +1396,19 @@ def remover_polo_sigma( imm, sigma, isImpedance = True,  isRC = True,  sigma_zer
     $$ Z_{R}= Z - \frac{k_i}{s + \sigma_i} $$
     
     siendo 
+
     $$ k=\lim\limits _{s\to -\sigma_i} Z (s + \sigma_i) $$
     
     En cuanto se especifique sigma_i, la remoción parcial estará definida 
     como
+
     $$ Z_{R}\biggr\rfloor_{s=-\sigma_i}= 0 = Z - \frac{k_i}{s + \sigma_i}\biggr\rfloor_{s=-\sigma_i} $$
     
     siendo 
     
     $$ k = Z.(\frac{)s + \sigma_i)\biggr\rfloor_{s=-\sigma_i} $$
     
+
     Parameters
     ----------
     zz o yy: Symbolic
@@ -1301,6 +1416,7 @@ def remover_polo_sigma( imm, sigma, isImpedance = True,  isRC = True,  sigma_zer
         simbólica que tendrá un polo de orden 1 en \omega.
     omega_zero : Symbolic
         Frecuencia a la que la imitancia será cero luego de la remoción.
+
     Returns
     -------
     imit_r : Symbolic
@@ -1397,16 +1513,19 @@ def remover_polo_jw( imit, omega = None , isImpedance = True, omega_zero = None 
     $$ I_{R}=I-\frac{2.k.s}{s^{2}+\omega^{2}} $$
     
     siendo 
+
     $$ k=\lim\limits _{s^2\to-\omega^2}I\frac{2.k.s}{s^{2}+\omega^{2}} $$
     
     En cuanto se especifique omega_zero, la remoción parcial estará definida 
     como
+
     $$ I_{R}\biggr\rfloor_{s^{2}=-\omega_{z}^{2}}=0=I-\frac{2.k.s}{s^{2}+\omega^{2}}\biggr\rfloor_{s^{2}=-\omega_{z}^{2}} $$
     
     siendo 
     
     $$ 2.k^{'}=I.\frac{s^{2}+\omega^{2}}{s}\biggr\rfloor_{s^{2}=-\omega_z^{2}} $$
     
+
     Parameters
     ----------
     imit : Symbolic
@@ -1414,6 +1533,7 @@ def remover_polo_jw( imit, omega = None , isImpedance = True, omega_zero = None 
         simbólica que tendrá un polo de orden 1 en \omega.
     omega_zero : Symbolic
         Frecuencia a la que la imitancia será cero luego de la remoción.
+
     Returns
     -------
     imit_r : Symbolic
@@ -1473,16 +1593,19 @@ def remover_polo_dc( imit, omega_zero = None ):
     $$ I_R = I - k_0/s  $$
     
     siendo 
+
     $$ k_0=\lim\limits _{s\to0}I.s $$
     
     En cuanto se especifique omega_zero, la remoción parcial estará definida 
     como
+
     $$ I_{R}\biggr\rfloor_{s^{2}=-\omega_z^{2}}=0=I-s.k_{0}^{'}\biggr\rfloor_{s^{2}=-\omega_z^{2}} $$
     
     siendo 
     
     $$ k_{0}^{'}=I.s\biggr\rfloor_{s^{2}=-\omega_z^{2}} $$
     
+
     Parameters
     ----------
     imit : Symbolic
@@ -1491,6 +1614,7 @@ def remover_polo_dc( imit, omega_zero = None ):
         diferencia de grados entre num y den será exactamente -1.
     omega_zero : Symbolic
         Frecuencia a la que la imitancia será cero luego de la remoción.
+
     Returns
     -------
     imit_r : Symbolic
@@ -1524,16 +1648,19 @@ def remover_polo_infinito( imit, omega_zero = None ):
     $$ I_R = I - s.k_\infty  $$
     
     siendo 
+
     $$ k_{\infty}=\lim\limits _{s\to\infty}I.\nicefrac{1}{s} $$
     
     En cuanto se especifique omega_zero, la remoción parcial estará definida 
     como
+
     $$ I_{R}\biggr\rfloor_{s^{2}=-\omega_z^{2}}=0=I-s.k_{\infty}^{'}\biggr\rfloor_{s^{2}=-\omega_z^{2}} $$
     
     siendo 
     
     $$ k_{\infty}^{'}=I.\nicefrac{1}{s}\biggr\rfloor_{s^{2}=-\omega_z^{2}} $$
     
+
     Parameters
     ----------
     imit : Symbolic
@@ -1542,6 +1669,7 @@ def remover_polo_infinito( imit, omega_zero = None ):
         diferencia de grados entre num y den será exactamente 1.
     omega_zero : Symbolic
         Frecuencia a la que la imitancia será cero luego de la remoción.
+
     Returns
     -------
     imit_r : Symbolic
@@ -1570,11 +1698,13 @@ def remover_valor( imit, sigma_zero):
     Se removerá un valor constante de la imitancia ($I$) de forma 
     que al removerlo, la imitancia luego de la remoción ($I_R$) tenga 
     un cero en sigma_zero. Es decir:
+
     $$ I_{R}\biggr\rfloor_{s = -\sigma_z} = 0 = (I - k_{\infty}^{'})\biggr\rfloor_{s = -\sigma_z} $$
     
     siendo 
     
     $$ k_{\infty}^{'}= I\biggr\rfloor_{s = -\sigma_z} $$
+
     Parameters
     ----------
     imit : Symbolic
@@ -1583,6 +1713,7 @@ def remover_valor( imit, sigma_zero):
         
     omega_zero : Symbolic
         Frecuencia a la que la imitancia será cero luego de la remoción.
+
     Returns
     -------
     imit_r : Symbolic
@@ -1609,12 +1740,15 @@ def remover_valor_en_infinito( imit ):
     $$ I_R = I - k_{\infty}  $$
     
     siendo 
+
     $$ k_{\infty}=\lim\limits _{s\to\infty}I $$
+
     Parameters
     ----------
     imit : Symbolic
         Imitancia que se utilizará para la remoción. Es una función racional 
         simbólica que tendrá un valor constante en infinito (mayor a su valor en s=0).
+
     Returns
     -------
     imit_r : Symbolic
@@ -1641,6 +1775,7 @@ def remover_valor_en_dc( imit ):
     $$ I_R = I - k_0  $$
     
     siendo 
+
     $$ k_0 = \lim\limits _{s \to 0}I $$
     
     Parameters
@@ -1673,18 +1808,21 @@ def tanque_z( doska, omegasq ):
     ($ \omega^2 $) de la expresión de impedancia dada por:
         
         $$ Z_{LC} = \frac{2.k.s}{(s^2+\omega^2)} $$
+
     Parameters
     ----------
     doska : Symbolic
         Dos veces el residuo.
     omegasq : Symbolic
         Cuadrado de la omega a la que el tanque resuena.
+
     Returns
     -------
     L : Symbolic
         Valor de la admitancia
     C : Symbolic
         Valor de la capacidad
+
     '''
     
     return( [doska/omegasq, 1/doska] )
@@ -1696,18 +1834,21 @@ def tanque_y( doska, omegasq ):
     ($ \omega^2 $) de la expresión de impedancia dada por:
         
         $$ Y_{LC} = \frac{2.k.s}{(s^2+\omega^2)} $$
+
     Parameters
     ----------
     doska : Symbolic
         Dos veces el residuo.
     omegasq : Symbolic
         Cuadrado de la omega a la que el tanque resuena.
+
     Returns
     -------
     L : Symbolic
         Valor de la admitancia
     C : Symbolic
         Valor de la capacidad
+
     '''
     
     return( [1/doska, doska/omegasq] )
@@ -1750,16 +1891,19 @@ def Y2T_s(YY):
 def Z2T_s(ZZ):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     TT = sp.Matrix([[0, 0], [0, 0]])
@@ -1778,16 +1922,19 @@ def Z2T_s(ZZ):
 def T2Z_s(TT):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     ZZ = sp.Matrix([[0, 0], [0, 0]])
@@ -1806,16 +1953,19 @@ def T2Z_s(TT):
 def T2Y_s(TT):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     YY = sp.Matrix([[0, 0], [0, 0]])
@@ -1849,16 +1999,19 @@ def Y2T(YY):
 def Z2T(ZZ):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     TT = np.zeros_like(ZZ)
@@ -1877,16 +2030,19 @@ def Z2T(ZZ):
 def T2Z(TT):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     ZZ = np.zeros_like(TT)
@@ -1905,16 +2061,19 @@ def T2Z(TT):
 def T2Y(TT):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     YY = np.zeros_like(TT)
     
@@ -1933,16 +2092,19 @@ def T2Y(TT):
 def Z2tee(ZZ):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     # Dibujo la red Tee
@@ -1974,16 +2136,19 @@ def Z2tee(ZZ):
 def Y2Pi(YY):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     # Dibujo la red Tee
@@ -2029,16 +2194,19 @@ def Y2Pi(YY):
 def y2mai(YY):
     '''
     Convierte la MAD en MAI luego de levantar de referencia.
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     Ymai = YY.row_insert(YY.shape[0], sp.Matrix([-sum(YY[:,ii] ) for ii in range(YY.shape[1])]).transpose() )
@@ -2050,16 +2218,19 @@ def y2mai(YY):
 def may2y(Ymai, nodes2del):
     '''
     Convierte la MAI en MAD luego de remover filas y columnas indicadas en nodes2del
+
     Parameters
     ----------
     Ymai : Symbolic Matrix
         Matriz admitancia indefinida.
     nodes2del : list or integer
         Nodos que se van a eliminar.
+
     Returns
     -------
     YY : Symbolic Matrix
         Matriz admitancia 
+
     '''
     
     YY = Ymai
@@ -2190,35 +2361,54 @@ def calc_MAI_impedance_ij(Ymai, ii=0, jj=1, verbose=False):
 
 '''
 Otras funciones
+
 '''
 
 def modsq2mod_s( aa ):
 
     num, den = sp.fraction(aa)
+
+    k = sp.poly(num,s).LC() / sp.poly(den,s).LC()
     
-    roots_num = sp.solve(num)
-    
-    real_part_roots = [ (s-roots_numm) for roots_numm in roots_num if sp.re(roots_numm) <= 0]
+    roots_num = sp.roots(num)
 
     poly_acc = sp.Rational('1')
     
-    for roots_numm in real_part_roots:
-        poly_acc *= roots_numm
-    
+    for this_root in roots_num.keys():
+        
+        if sp.re(this_root) <= 0:
+            
+            # multiplicidad
+            mult = roots_num[this_root]
+
+            if mult > 1:
+                poly_acc *= (s-this_root)**sp.Rational(mult/2)
+            else:
+                poly_acc *= (s-this_root)
+                
+            
+
     num = sp.simplify(sp.expand(poly_acc))
 
-    roots_num = sp.solve(den)
+    roots_num = sp.roots(den)
     
-    real_part_roots = [ (s-roots_numm) for roots_numm in roots_num if sp.re(roots_numm) <= 0]
-
     poly_acc = sp.Rational('1')
-    
-    for roots_numm in real_part_roots:
-        poly_acc *= roots_numm
+
+    for this_root in roots_num.keys():
+        
+        if sp.re(this_root) <= 0:
+            
+            # multiplicidad
+            mult = roots_num[this_root]
+
+            if mult > 1:
+                poly_acc *= (s-this_root)**sp.Rational(mult/2)
+            else:
+                poly_acc *= (s-this_root)
     
     poly_acc = sp.simplify(sp.expand(poly_acc))
 
-    return(sp.simplify(sp.expand(num/poly_acc))) 
+    return(sp.simplify(sp.expand(sp.sqrt(k) * num/poly_acc))) 
 
 
 def modsq2mod( aa ):
@@ -2396,19 +2586,23 @@ def pretty_print_SOS(mySOS, mode = 'default', displaystr = True):
                 s² a1_i + s a2_i + a3_i
         T_i =  -------------------------
                 s² b1_i + s b2_i + b3_i
+
     Parameters
     ----------
     mySOS : TYPE
         DESCRIPTION.
     mode : TYPE, optional
         DESCRIPTION. The default is 'default'.
+
     Raises
     ------
     ValueError
         DESCRIPTION.
+
     Returns
     -------
     None.
+
     '''
 
     sos_str = '' 
@@ -3101,15 +3295,18 @@ def zpk2sos_analog(z, p, k, pairing='nearest'):
     pairing : {'nearest', 'keep_odd'}, optional
         The method to use to combine pairs of poles and zeros into sections.
         See Notes below.
+
     Returns
     -------
     sos : ndarray
         Array of second-order filter coefficients, with shape
         ``(n_sections, 6)``. See `sosfilt` for the SOS filter format
         specification.
+
     See Also
     --------
     sosfilt
+
     Notes
     -----
     The algorithm used to convert ZPK to SOS format follows the suggestions
@@ -3117,6 +3314,7 @@ def zpk2sos_analog(z, p, k, pairing='nearest'):
         1- Assign zeros to closest poles
         2- order sections by increasing Q
         3- gains ordering to maximize dynamic range. See ch. 5.
+
   
     """
     
@@ -3316,11 +3514,13 @@ def _nearest_real_complex_idx(fro, to, which):
 def _cplxreal(z, tol=None):
     """
     Split into complex and real parts, combining conjugate pairs.
+
     The 1-D input vector `z` is split up into its complex (`zc`) and real (`zr`)
     elements. Every complex element must be part of a complex-conjugate pair,
     which are combined into a single number (with positive imaginary part) in
     the output. Two complex numbers are considered a conjugate pair if their
     real and imaginary parts differ in magnitude by less than ``tol * abs(z)``.
+
     Parameters
     ----------
     z : array_like
@@ -3329,6 +3529,7 @@ def _cplxreal(z, tol=None):
         Relative tolerance for testing realness and conjugate equality.
         Default is ``100 * spacing(1)`` of `z`'s data type (i.e., 2e-14 for
         float64)
+
     Returns
     -------
     zc : ndarray
@@ -3339,14 +3540,17 @@ def _cplxreal(z, tol=None):
     zr : ndarray
         Real elements of `z` (those having imaginary part less than
         `tol` times their magnitude), sorted by value.
+
     Raises
     ------
     ValueError
         If there are any complex numbers in `z` for which a conjugate
         cannot be found.
+
     See Also
     --------
     _cplxpair
+
     Examples
     --------
     >>> a = [4, 3, 1, 2-2j, 2+2j, 2-1j, 2+1j, 2-1j, 2+1j, 1+1j, 1-1j]
@@ -3409,3 +3613,4 @@ def _cplxreal(z, tol=None):
     zc = (zp + zn.conj()) / 2
 
     return zc, zr
+
