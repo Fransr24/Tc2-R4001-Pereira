@@ -1,0 +1,10 @@
+* C:\Users\perei\Documents\GitHub\Tc2-R4001-Pereira\Ltspice\TS12\Ej2.asc
+R1 N001 N003 2
+R2 N002 N001 4
+C1 N002 N001 0.25
+R3 N002 0 0.4
+C2 N002 0 1
+V1 N003 0 AC 1 1
+.ac dec 100 0.1 100
+.backanno
+.end
