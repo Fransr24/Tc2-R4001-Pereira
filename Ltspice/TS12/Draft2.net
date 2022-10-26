@@ -1,0 +1,12 @@
+* C:\Users\perei\Documents\GitHub\Tc2-R4001-Pereira\Ltspice\TS12\Draft2.asc
+I1 0 N001 AC 1 1
+C1 N001 0 {C1}
+C2 N002 N001 {C2}
+L1 N001 N002 {L1}
+C3 N002 0 {C3}
+R1 N002 0 1
+.ac dec 100 0.1 10
+.param C1 = {27/17} C3 = {7/17}
+.param C2 = {27/289} L1 = {289/243}
+.backanno
+.end
