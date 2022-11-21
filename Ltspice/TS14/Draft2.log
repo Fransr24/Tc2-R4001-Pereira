@@ -1,0 +1,18 @@
+Circuit: * C:\Users\perei\Documents\GitHub\Tc2-R4001-Pereira\Ltspice\TS14\Draft2.asc
+
+
+Date: Sun Nov 20 20:28:20 2022
+Total elapsed time: 0.062 seconds.
+
+tnom = 27
+temp = 27
+method = trap
+totiter = 0
+traniter = 0
+tranpoints = 0
+accept = 0
+rejected = 0
+matrix size = 3
+fillins = 0
+solver = Normal
+
